@@ -1,5 +1,6 @@
 # fish shell completions for RVM
 
+# script generated
 complete -f -c rvm -n '__fish_use_subcommand' -a fetch -d "download binary or sources for selected ruby version"
 complete -f -c rvm -n '__fish_use_subcommand' -a install -d "install ruby interpreter"
 complete -f -c rvm -n '__fish_use_subcommand' -a list -d "show currently installed ruby interpreters, list known for available interpreters"
@@ -44,3 +45,35 @@ complete -f -c rvm -n '__fish_use_subcommand' -a info -d "show the environment i
 complete -f -c rvm -n '__fish_use_subcommand' -a disk-usage -d "display disk space occupied by rvm"
 complete -f -c rvm -n '__fish_use_subcommand' -a notes -d "display notes with operating system specifics"
 complete -f -c rvm -n '__fish_use_subcommand' -a version -d "display rvm version (equal to `rvm -v`)"
+
+# hand written
+
+function __get_envs
+	ls ~/.rvm/environments/ | tr '' '@'
+end
+
+for env in "(__get_envs) system"
+	complete -c rvm -n '__fish_using_command rvm use' -f -a "$env"
+end
+
+for comm in copy create delete dir empty export gemdir globalcache import install list list_all name pristine rename unpack update use
+	complete -c rvm -n '__fish_using_command rvm gemset' -f -a "$comm"
+end
+
+function __fish_using_command
+    set cmd (commandline -opc)
+    if [ (count $cmd) -eq (count $argv) ]
+        for i in (seq (count $argv))
+            if [ $cmd[$i] != $argv[$i] ]
+                return 1
+            end
+        end
+        return 0
+    end
+    return 1
+end
+
+for env in "(__get_envs)"
+	complete -c rvm -n '__fish_using_command rvm gemset use' -f -a "$env"
+	complete -c rvm -n '__fish_using_command rvm gemset delete' -f -a "$env"
+end
